@@ -1,0 +1,48 @@
+<html>
+  <body>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <h1>当前分支：<span class="ref"></span></h1>
+  </body>
+  <ul>
+    当前具备如下操作:
+    <span data-slot="slot"></span>
+  </ul>
+  <script>
+    const vscode = acquireVsCodeApi();
+    window.addEventListener("message", (event) => {
+      const message = event.data;
+      if ("gitBranch" in message) {
+        $(".ref").text(message.gitBranch);
+
+        render();
+      }
+    });
+
+    const render = () => {
+      const text = $(".ref").text();
+      const [product, type, version, ...rest] = text.split(/\/|_/);
+      if (type === "test") {
+        $("[data-slot='slot']").html(
+          `<li>
+            <button class="bugfix">修复bug</button>
+          </li>`
+        );
+      } else if (type === "fix") {
+        $("[data-slot='slot']").html(
+          `<li>
+            <button class="resolved">Resolved</button>
+          </li>`
+        );
+      }
+
+      $(".bugfix").click(() => {
+        vscode.postMessage({ type: 0 });
+      });
+
+      $(".resolved").click(() => {
+        console.log("test");
+        vscode.postMessage({ type: 1 });
+      });
+    };
+  </script>
+</html>
